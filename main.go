@@ -24,7 +24,9 @@ func main() {
 	r := gin.Default()
 
 	// 注册全局中间件
-	r.Use(middleware.LoggerWithWriter(logFile))
+	// r.Use(middleware.LoggerWithWriter(logFile))
+	//标准输出
+	r.Use(middleware.LoggerWithWriter(os.Stdout))
 
 	// 路由
 	r.GET("/users", handlers.GetUsers)
