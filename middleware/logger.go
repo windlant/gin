@@ -2,12 +2,16 @@ package middleware
 
 import (
 	"fmt"
+	"io"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Logger() gin.HandlerFunc {
+// LoggerWithWriter 返回一个将日志写入指定 io.Writer 的中间件
+func LoggerWithWriter(out io.Writer) gin.HandlerFunc {
+	var mu sync.Mutex
 	return func(c *gin.Context) {
 		start := time.Now()
 		path := c.Request.URL.Path
@@ -15,10 +19,11 @@ func Logger() gin.HandlerFunc {
 
 		c.Next()
 
-		end := time.Now()
-		latency := end.Sub(start)
+		latency := time.Since(start)
 		statusCode := c.Writer.Status()
 
-		fmt.Printf("[CustomGin LOG] %s %s -> %d (%v)\n", method, path, statusCode, latency)
+		mu.Lock()
+		defer mu.Unlock()
+		fmt.Fprintf(out, "[CustomGin LOG] %s %s -> %d (%v)\n", method, path, statusCode, latency)
 	}
 }
