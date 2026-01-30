@@ -11,6 +11,10 @@ import (
 
 func main() {
 
+	if err := handlers.InitDBAndRedis(); err != nil {
+		log.Fatal("Failed to initialize DB and Redis:", err)
+	}
+
 	if err := os.MkdirAll("logs", 0755); err != nil {
 		log.Fatal("Failed to create logs directory:", err)
 	}
@@ -30,7 +34,7 @@ func main() {
 
 	// 路由
 	r.GET("/users", handlers.GetUsers)
-	r.GET("/users/:id", handlers.GetUser)
+	r.POST("/users/get", handlers.GetUser)
 	r.POST("/users", handlers.CreateUsers)
 	r.PUT("/users", handlers.UpdateUsers)
 	r.DELETE("/users", handlers.DeleteUsers)
